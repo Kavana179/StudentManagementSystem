@@ -1,0 +1,45 @@
+name: SonarCloud Analysis
+
+on:
+  push:
+    branches:
+      - main   # or specify other branches you want to analyze
+  pull_request:
+    branches:
+      - main   # or specify other branches for PRs
+
+jobs:
+  build:
+    runs-on: windows-latest  # You can also use ubuntu-latest or macos-latest if required
+
+    steps:
+    # Step 1: Checkout the code
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    # Step 2: Set up .NET SDK
+    - name: Set up .NET SDK
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '6.x'   # Specify the .NET version you are using
+
+    # Step 3: Install SonarScanner for MSBuild
+    - name: Install SonarScanner for MSBuild
+      run: |
+        dotnet tool install --global dotnet-sonarscanner
+
+    # Step 4: Begin SonarCloud analysis
+    - name: Begin SonarCloud analysis
+      run: |
+        dotnet sonarscanner begin /k:"Kavana179_StudentManagementSystem" /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+
+    # Step 5: Build the project
+    - name: Build project
+      run: |
+        dotnet build
+
+    # Step 6: End SonarCloud analysis
+    - name: End SonarCloud analysis
+      run: |
+        dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+

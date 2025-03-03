@@ -30,7 +30,14 @@ jobs:
 
     - name: Remove BOM from .sln file
       run: |
+        echo "Removing BOM from .sln file"
         sed -i '1s/^\xEF\xBB\xBF//' /home/runner/work/StudentManagementSystem/StudentManagementSystem/StudentManagementSystem.sln
+
+    - name: Verify BOM removal and file contents
+      run: |
+        echo "Verifying contents of StudentManagementSystem.sln"
+        ls -l /home/runner/work/StudentManagementSystem/StudentManagementSystem/StudentManagementSystem.sln
+        cat /home/runner/work/StudentManagementSystem/StudentManagementSystem/StudentManagementSystem.sln
 
     - name: Restore dependencies
       run: dotnet restore StudentManagementSystem.sln

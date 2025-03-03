@@ -21,18 +21,21 @@ jobs:
       with:
         dotnet-version: '7.0'
 
+    - name: List files (check file paths)
+      run: ls -R
+
     - name: Install SonarScanner
       run: |
         dotnet tool install --global dotnet-sonarscanner
 
     - name: Restore dependencies
-      run: dotnet restore StudentManagementSystem/StudentManagementSystem.sln
+      run: dotnet restore StudentManagementSystem.sln
 
     - name: Clean Solution
-      run: dotnet clean StudentManagementSystem/StudentManagementSystem.sln
+      run: dotnet clean StudentManagementSystem.sln
 
     - name: Build Solution
-      run: dotnet build StudentManagementSystem/StudentManagementSystem.sln --configuration Release
+      run: dotnet build StudentManagementSystem.sln --configuration Release
 
     - name: Run SonarScanner Begin
       run: |

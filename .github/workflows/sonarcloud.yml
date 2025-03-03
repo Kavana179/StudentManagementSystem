@@ -39,7 +39,7 @@ jobs:
         dotnet clean StudentManagementSystem.sln
         dotnet build StudentManagementSystem.sln
 
-    # Step 6: Begin SonarCloud analysis
+    # Step 6: Begin SonarCloud analysis with explicit working directory
     - name: Begin SonarCloud analysis
       run: |
         dotnet sonarscanner begin /k:"Kavana179_StudentManagementSystem" /o:"kavana179" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /s:"StudentManagementSystem.sln" /d:sonar.cs.vscoveragexml.reportsPaths="**/coverage.opencover.xml"
@@ -51,7 +51,7 @@ jobs:
         dotnet test StudentManagementSystem.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=./TestResults/
       working-directory: ./ # Ensure the working directory is set to the root of the repository
 
-    # Step 8: End SonarCloud analysis
+    # Step 8: End SonarCloud analysis with explicit working directory
     - name: End SonarCloud analysis
       run: |
         dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"

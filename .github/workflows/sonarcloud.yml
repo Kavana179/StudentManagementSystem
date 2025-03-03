@@ -1,67 +1,55 @@
-name: SonarQube Analysis
+name: SonarCloud Analysis
 
 on:
   push:
     branches:
-      - main
+      - main  # Adjust as needed
   pull_request:
     branches:
-      - main
+      - main  # Adjust as needed
 
 jobs:
-  sonarqube-analysis:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest  # or windows-latest if you're using Windows
 
     steps:
-      # Checkout the code
-      - name: Checkout Code
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      # Setup .NET SDK (Ensure the appropriate version is installed)
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '6.x'  # Use the version you need (e.g., 6.x or 3.x, depending on your project)
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '7.0'
 
-      # Install dependencies
-      - name: Restore Dependencies
-        run: dotnet restore /home/runner/work/StudentManagementSystem/StudentManagementSystem/StudentManagementSystem.sln
+    - name: List files (check file paths)
+      run: ls -R
 
-      # Check if the .sln file exists and display its contents
-      - name: Checking for solution file...
-        run: |
-          echo "Checking for solution file..."
-          ls -l /home/runner/work/StudentManagementSystem/StudentManagementSystem/StudentManagementSystem.sln
-          cat /home/runner/work/StudentManagementSystem/StudentManagementSystem/StudentManagementSystem.sln
+    - name: Install SonarScanner
+      run: |
+        dotnet tool install --global dotnet-sonarscanner
 
-      # Remove BOM if present in the solution file (check for BOM)
-      - name: Remove BOM (if any) from solution file
-        run: |
-          file_path="/home/runner/work/StudentManagementSystem/StudentManagementSystem/StudentManagementSystem.sln"
-          if xxd $file_path | head -n 1 | grep -q "ef bb bf"; then
-            echo "BOM detected in .sln file. Removing BOM..."
-            sed -i '1s/^\xEF\xBB\xBF//' $file_path
-          else
-            echo "No BOM detected in .sln file."
-          fi
+    - name: Remove BOM from .sln file
+      run: |
+        sed -i '1s/^\xEF\xBB\xBF//' /home/runner/work/StudentManagementSystem/StudentManagementSystem/StudentManagementSystem.sln
 
-      # Clean and build the solution to ensure it's in a good state before analysis
-      - name: Clean and Build Solution
-        run: |
-          dotnet clean /home/runner/work/StudentManagementSystem/StudentManagementSystem/StudentManagementSystem.sln
-          dotnet build /home/runner/work/StudentManagementSystem/StudentManagementSystem/StudentManagementSystem.sln
+    - name: Restore dependencies
+      run: dotnet restore StudentManagementSystem.sln
 
-      # Begin SonarScanner analysis with debug output
-      - name: Begin SonarScanner Analysis
-        run: |
-          dotnet sonarscanner begin /k:"Kavana179_StudentManagementSystem" /o:"kavana179" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" -X
+    - name: Clean Solution
+      run: dotnet clean StudentManagementSystem.sln
 
-      # Build the solution again after beginning the analysis
-      - name: Build the Solution for Analysis
-        run: |
-          dotnet build /home/runner/work/StudentManagementSystem/StudentManagementSystem/StudentManagementSystem.sln
+    - name: Build Solution
+      run: dotnet build StudentManagementSystem.sln --configuration Release
 
-      # End SonarScanner analysis
-      - name: End SonarScanner Analysis
-        run: |
-          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+    - name: Run SonarScanner Begin
+      run: |
+        echo "Running SonarScanner in directory: $(pwd)"
+        dotnet sonarscanner begin /k:"Kavana179_StudentManagementSystem" /o:"kavana179" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /s:"StudentManagementSystem.sln" /d:sonar.verbose=true
+
+    - name: Run Tests
+      run: |
+        dotnet test StudentManagementSystem.sln --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"
+
+    - name: Run SonarScanner End
+      run: |
+        dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"

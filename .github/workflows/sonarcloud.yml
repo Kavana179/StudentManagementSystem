@@ -1,4 +1,4 @@
-name: SonarCloud Analysis
+name: SonarCloud Analysis with Coverage
 
 on:
   push:
@@ -17,29 +17,33 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    # Step 2: Set up .NET SDK
+    # Step 2: Set up .NET SDK 7.x
     - name: Set up .NET SDK
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '7.x'   # Specify the .NET version you are using
+        dotnet-version: '7.x'  # Use .NET 7 SDK
 
     # Step 3: Install SonarScanner for MSBuild
     - name: Install SonarScanner for MSBuild
       run: |
         dotnet tool install --global dotnet-sonarscanner
 
-    # Step 4: Begin SonarCloud analysis
+    # Step 4: Install Coverlet global tool for code coverage
+    - name: Install Coverlet global tool
+      run: |
+        dotnet tool install --global coverlet.console --version 3.1.0
+
+    # Step 5: Begin SonarCloud analysis
     - name: Begin SonarCloud analysis
       run: |
-        dotnet sonarscanner begin /k:"Kavana179_StudentManagementSystem" /o:"kavana179" /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+        dotnet sonarscanner begin /k:"Kavana179_StudentManagementSystem" /o:"kavana179" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.vscoveragexml.reportsPaths="**/coverage.opencover.xml"
 
-    # Step 5: Build the project
-    - name: Build project
+    # Step 6: Run tests with Coverlet and collect code coverage
+    - name: Run tests and collect code coverage
       run: |
-        dotnet build
+        dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=./TestResults/
 
-    # Step 6: End SonarCloud analysis
+    # Step 7: End SonarCloud analysis
     - name: End SonarCloud analysis
       run: |
         dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-

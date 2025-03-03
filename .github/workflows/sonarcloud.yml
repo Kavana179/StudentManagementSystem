@@ -3,52 +3,58 @@ name: SonarCloud Analysis with Coverage
 on:
   push:
     branches:
-      - main  # or specify other branches you want to analyze
+      - main
   pull_request:
     branches:
-      - main  # or specify other branches for PRs
+      - main
 
 jobs:
   build:
-    runs-on: windows-latest  # or ubuntu-latest or macos-latest depending on your preference
+    runs-on: windows-latest
 
     steps:
     # Step 1: Checkout the code
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    # Step 2: Set up .NET SDK (using .NET 7 in this example)
+    # Step 2: List files to confirm solution file exists
+    - name: List files to confirm solution file exists
+      run: |
+        dir # or use ls on other environments
+
+    # Step 3: Set up .NET SDK
     - name: Set up .NET SDK
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: '7.x'
 
-    # Step 3: Install SonarScanner for MSBuild
+    # Step 4: Install SonarScanner for MSBuild
     - name: Install SonarScanner for MSBuild
       run: |
         dotnet tool install --global dotnet-sonarscanner
 
-    # Step 4: Install Coverlet global tool for code coverage collection
+    # Step 5: Install Coverlet global tool for code coverage
     - name: Install Coverlet global tool
       run: |
         dotnet tool install --global coverlet.console --version 3.1.0
 
-    # Step 5: Begin SonarCloud analysis
+    # Step 6: Clean and rebuild the solution
+    - name: Clean and rebuild the solution
+      run: |
+        dotnet clean StudentManagementSystem/StudentManagementSystem.sln
+        dotnet build StudentManagementSystem/StudentManagementSystem.sln
+
+    # Step 7: Begin SonarCloud analysis
     - name: Begin SonarCloud analysis
       run: |
-        dotnet sonarscanner begin /k:"Kavana179_StudentManagementSystem" /o:"kavana179" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /s:"StudentManagementSystem.sln" /d:sonar.cs.vscoveragexml.reportsPaths="**/coverage.opencover.xml"
+        dotnet sonarscanner begin /k:"Kavana179_StudentManagementSystem" /o:"kavana179" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /s:"StudentManagementSystem/StudentManagementSystem.sln" /d:sonar.cs.vscoveragexml.reportsPaths="**/coverage.opencover.xml"
 
-    # Step 6: Build the project (make sure the project is built before testing)
-    - name: Build project
-      run: |
-        dotnet build StudentManagementSystem.sln
-
-    # Step 7: Run tests and collect code coverage
+    # Step 8: Run tests and collect code coverage
     - name: Run tests and collect code coverage
       run: |
-        dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=./TestResults/
+        dotnet test StudentManagementSystem/StudentManagementSystem.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=./TestResults/
 
-    # Step 8: End SonarCloud analysis and upload results
+    # Step 9: End SonarCloud analysis
     - name: End SonarCloud analysis
       run: |
         dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"

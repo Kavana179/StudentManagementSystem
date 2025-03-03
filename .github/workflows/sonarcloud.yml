@@ -28,6 +28,12 @@ jobs:
       run: |
         dotnet tool install --global dotnet-sonarscanner
 
+    - name: Verify solution file existence
+      run: |
+        echo "Checking for solution file..."
+        ls -l /home/runner/work/StudentManagementSystem/StudentManagementSystem/StudentManagementSystem.sln
+        cat /home/runner/work/StudentManagementSystem/StudentManagementSystem/StudentManagementSystem.sln
+
     - name: Restore dependencies
       run: dotnet restore StudentManagementSystem.sln
 
@@ -40,7 +46,7 @@ jobs:
     - name: Run SonarScanner Begin
       run: |
         echo "Running SonarScanner in directory: $(pwd)"
-        dotnet sonarscanner begin /k:"Kavana179_StudentManagementSystem" /o:"kavana179" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.projectBaseDir=/home/runner/work/StudentManagementSystem/StudentManagementSystem /s:"StudentManagementSystem.sln" /d:sonar.verbose=true
+        dotnet sonarscanner begin /k:"Kavana179_StudentManagementSystem" /o:"kavana179" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /s:/home/runner/work/StudentManagementSystem/StudentManagementSystem/StudentManagementSystem.sln /d:sonar.verbose=true
 
     - name: Run Tests
       run: |

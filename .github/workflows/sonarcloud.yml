@@ -41,18 +41,18 @@ jobs:
     # Step 6: Clean and rebuild the solution
     - name: Clean and rebuild the solution
       run: |
-        dotnet clean StudentManagementSystem/StudentManagementSystem.sln
-        dotnet build StudentManagementSystem/StudentManagementSystem.sln
+        dotnet clean StudentManagementSystem.sln
+        dotnet build StudentManagementSystem.sln
 
     # Step 7: Begin SonarCloud analysis
     - name: Begin SonarCloud analysis
       run: |
-        dotnet sonarscanner begin /k:"Kavana179_StudentManagementSystem" /o:"kavana179" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /s:"StudentManagementSystem/StudentManagementSystem.sln" /d:sonar.cs.vscoveragexml.reportsPaths="**/coverage.opencover.xml"
+        dotnet sonarscanner begin /k:"Kavana179_StudentManagementSystem" /o:"kavana179" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /s:"StudentManagementSystem.sln" /d:sonar.cs.vscoveragexml.reportsPaths="**/coverage.opencover.xml"
 
     # Step 8: Run tests and collect code coverage
     - name: Run tests and collect code coverage
       run: |
-        dotnet test StudentManagementSystem/StudentManagementSystem.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=./TestResults/
+        dotnet test StudentManagementSystem.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=./TestResults/
 
     # Step 9: End SonarCloud analysis
     - name: End SonarCloud analysis

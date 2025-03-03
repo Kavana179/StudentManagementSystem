@@ -37,18 +37,9 @@ jobs:
     - name: Build Solution
       run: dotnet build StudentManagementSystem.sln --configuration Release
 
-    # Check contents of the solution file for any issues
-    - name: Check contents of solution file
-      run: cat StudentManagementSystem.sln
-
-    # Validate Solution with MSBuild to ensure it's readable
-    - name: Validate Solution with MSBuild
-      run: msbuild /home/runner/work/StudentManagementSystem/StudentManagementSystem/StudentManagementSystem.sln
-
     - name: Run SonarScanner Begin
       run: |
-        echo "Running SonarScanner in directory: $(pwd)"
-        dotnet sonarscanner begin /k:"Kavana179_StudentManagementSystem" /o:"kavana179" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /s:"/home/runner/work/StudentManagementSystem/StudentManagementSystem/StudentManagementSystem.sln" /d:sonar.cs.vscoveragexml.reportsPaths="**/coverage.opencover.xml" /d:sonar.verbose=true
+        dotnet sonarscanner begin /k:"Kavana179_StudentManagementSystem" /o:"kavana179" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /s:"StudentManagementSystem.sln" /d:sonar.cs.vscoveragexml.reportsPaths="**/coverage.opencover.xml" /d:sonar.verbose=true
 
     - name: Run Tests
       run: |

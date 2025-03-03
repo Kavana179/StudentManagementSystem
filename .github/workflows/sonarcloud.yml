@@ -21,7 +21,7 @@ jobs:
     - name: Set up .NET SDK
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '6.x'   # Specify the .NET version you are using
+        dotnet-version: '7.x'   # Specify the .NET version you are using
 
     # Step 3: Install SonarScanner for MSBuild
     - name: Install SonarScanner for MSBuild

@@ -37,9 +37,12 @@ jobs:
     - name: Build Solution
       run: dotnet build StudentManagementSystem.sln --configuration Release
 
+    - name: Change directory to root
+      run: cd /home/runner/work/StudentManagementSystem/StudentManagementSystem
+
     - name: Run SonarScanner Begin
       run: |
-        dotnet sonarscanner begin /k:"Kavana179_StudentManagementSystem" /o:"kavana179" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /s:"StudentManagementSystem/StudentManagementSystem.sln" /d:sonar.cs.vscoveragexml.reportsPaths="**/coverage.opencover.xml" /d:sonar.verbose=true
+        dotnet sonarscanner begin /k:"Kavana179_StudentManagementSystem" /o:"kavana179" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /s:"StudentManagementSystem.sln" /d:sonar.cs.vscoveragexml.reportsPaths="**/coverage.opencover.xml" /d:sonar.verbose=true
 
     - name: Run Tests
       run: |
@@ -48,3 +51,5 @@ jobs:
     - name: Run SonarScanner End
       run: |
         dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+
+       

@@ -17,44 +17,39 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    # Step 2: List files to confirm solution file exists
-    - name: List files to confirm solution file exists
-      run: |
-        dir # or use ls on other environments
-
-    # Step 3: Set up .NET SDK
+    # Step 2: Set up .NET SDK
     - name: Set up .NET SDK
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: '7.x'
 
-    # Step 4: Install SonarScanner for MSBuild
+    # Step 3: Install SonarScanner for MSBuild
     - name: Install SonarScanner for MSBuild
       run: |
         dotnet tool install --global dotnet-sonarscanner
 
-    # Step 5: Install Coverlet global tool for code coverage
+    # Step 4: Install Coverlet global tool for code coverage
     - name: Install Coverlet global tool
       run: |
         dotnet tool install --global coverlet.console --version 3.1.0
 
-    # Step 6: Clean and rebuild the solution
+    # Step 5: Clean and rebuild the solution
     - name: Clean and rebuild the solution
       run: |
         dotnet clean StudentManagementSystem.sln
         dotnet build StudentManagementSystem.sln
 
-    # Step 7: Begin SonarCloud analysis
+    # Step 6: Begin SonarCloud analysis
     - name: Begin SonarCloud analysis
       run: |
         dotnet sonarscanner begin /k:"Kavana179_StudentManagementSystem" /o:"kavana179" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /s:"StudentManagementSystem.sln" /d:sonar.cs.vscoveragexml.reportsPaths="**/coverage.opencover.xml"
-
-    # Step 8: Run tests and collect code coverage
+      
+    # Step 7: Run tests and collect code coverage
     - name: Run tests and collect code coverage
       run: |
         dotnet test StudentManagementSystem.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=./TestResults/
 
-    # Step 9: End SonarCloud analysis
+    # Step 8: End SonarCloud analysis
     - name: End SonarCloud analysis
       run: |
         dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"

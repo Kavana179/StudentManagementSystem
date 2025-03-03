@@ -31,7 +31,7 @@ jobs:
     # Step 4: Begin SonarCloud analysis
     - name: Begin SonarCloud analysis
       run: |
-        dotnet sonarscanner begin /k:"Kavana179_StudentManagementSystem" /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+        dotnet sonarscanner begin /k:"Kavana179_StudentManagementSystem" /o:"kavana179" /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
     # Step 5: Build the project
     - name: Build project

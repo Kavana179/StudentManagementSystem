@@ -3,14 +3,14 @@ name: SonarCloud Analysis
 on:
   push:
     branches:
-      - main  # Change to your main branch or any specific branch
+      - main  # Adjust as needed
   pull_request:
     branches:
-      - main  # Change to your main branch or any specific branch
+      - main  # Adjust as needed
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # Or windows-latest depending on your environment
+    runs-on: ubuntu-latest  # or windows-latest if you're using Windows
 
     steps:
     - name: Checkout code
@@ -19,35 +19,29 @@ jobs:
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '7.0'  # Use the correct version of the .NET SDK
+        dotnet-version: '7.0'
 
     - name: Install SonarScanner
       run: |
         dotnet tool install --global dotnet-sonarscanner
 
     - name: Restore dependencies
-      run: dotnet restore StudentManagementSystem.sln
+      run: dotnet restore StudentManagementSystem/StudentManagementSystem.sln
 
     - name: Clean Solution
-      run: dotnet clean StudentManagementSystem.sln
+      run: dotnet clean StudentManagementSystem/StudentManagementSystem.sln
 
     - name: Build Solution
-      run: dotnet build StudentManagementSystem.sln --configuration Release
+      run: dotnet build StudentManagementSystem/StudentManagementSystem.sln --configuration Release
 
     - name: Run SonarScanner Begin
       run: |
-        dotnet sonarscanner begin /k:"Kavana179_StudentManagementSystem" /o:"kavana179" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /s:"StudentManagementSystem.sln" /d:sonar.cs.vscoveragexml.reportsPaths="**/coverage.opencover.xml" /d:sonar.verbose=true
+        dotnet sonarscanner begin /k:"Kavana179_StudentManagementSystem" /o:"kavana179" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /s:"StudentManagementSystem/StudentManagementSystem.sln" /d:sonar.cs.vscoveragexml.reportsPaths="**/coverage.opencover.xml" /d:sonar.verbose=true
 
     - name: Run Tests
       run: |
-        dotnet test StudentManagementSystem.sln --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"
+        dotnet test StudentManagementSystem/StudentManagementSystem.sln --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"
 
     - name: Run SonarScanner End
       run: |
         dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-
-    - name: Upload Test Results to SonarCloud
-      uses: sonarsource/sonarcloud-github-action@v1
-      with:
-        sonarcloud_token: ${{ secrets.SONAR_TOKEN }}
-

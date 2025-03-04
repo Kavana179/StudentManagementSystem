@@ -1,62 +1,44 @@
-name: SonarCloud Analysis
+name: SonarCloud Analysis with Coverage
 
 on:
   push:
     branches:
-      - main  # Adjust as needed
+      - main   # or specify other branches you want to analyze
   pull_request:
     branches:
-      - main  # Adjust as needed
+      - main   # or specify other branches for PRs
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # or windows-latest if you're using Windows
+    runs-on: windows-latest  # You can also use ubuntu-latest or macos-latest if required
 
     steps:
-    - name: Checkout code
+    # Step 1: Checkout the code
+    - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Setup .NET SDK
+    # Step 2: Set up .NET SDK 7.x
+    - name: Set up .NET SDK
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '7.0'
+        dotnet-version: '7.x'  # Use .NET 7 SDK
 
-    - name: List files (check file paths)
-      run: ls -R
-
-    - name: Install SonarScanner
+    # Step 3: Install SonarScanner for MSBuild
+    - name: Install SonarScanner for MSBuild
       run: |
         dotnet tool install --global dotnet-sonarscanner
 
-    - name: Remove BOM from .sln file
+    # Step 4: Begin SonarCloud analysis
+    - name: Begin SonarCloud analysis
       run: |
-        echo "Removing BOM from .sln file"
-        sed -i '1s/^\xEF\xBB\xBF//' /home/runner/work/StudentManagementSystem/StudentManagementSystem/StudentManagementSystem.sln
+        dotnet sonarscanner begin /k:"Kavana179_StudentManagementSystem" /o:"your_organization_key" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.vscoveragexml.reportsPaths="**/coverage.opencover.xml"
 
-    - name: Verify BOM removal and file contents
+    # Step 5: Run Tests and Collect Code Coverage
+    - name: Run tests and collect code coverage
       run: |
-        echo "Verifying contents of StudentManagementSystem.sln"
-        ls -l /home/runner/work/StudentManagementSystem/StudentManagementSystem/StudentManagementSystem.sln
-        cat /home/runner/work/StudentManagementSystem/StudentManagementSystem/StudentManagementSystem.sln
+        dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=./TestResults/
 
-    - name: Restore dependencies
-      run: dotnet restore StudentManagementSystem.sln
-
-    - name: Clean Solution
-      run: dotnet clean StudentManagementSystem.sln
-
-    - name: Build Solution
-      run: dotnet build StudentManagementSystem.sln --configuration Release
-
-    - name: Run SonarScanner Begin
-      run: |
-        echo "Running SonarScanner in directory: $(pwd)"
-        dotnet sonarscanner begin /k:"Kavana179_StudentManagementSystem" /o:"kavana179" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /s:"StudentManagementSystem.sln" /d:sonar.verbose=true
-
-    - name: Run Tests
-      run: |
-        dotnet test StudentManagementSystem.sln --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"
-
-    - name: Run SonarScanner End
+    # Step 6: End SonarCloud analysis
+    - name: End SonarCloud analysis
       run: |
         dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"

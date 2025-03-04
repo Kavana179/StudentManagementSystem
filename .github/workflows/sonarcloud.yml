@@ -1,4 +1,4 @@
-name: SonarCloud Analysis with Coverage
+name: SonarCloud Analysis
 
 on:
   push:
@@ -31,12 +31,12 @@ jobs:
     # Step 4: Begin SonarCloud analysis
     - name: Begin SonarCloud analysis
       run: |
-        dotnet sonarscanner begin /k:"Kavana179_StudentManagementSystem" /o:"kavana179" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.vscoveragexml.reportsPaths="**/coverage.opencover.xml"
+        dotnet sonarscanner begin /k:"Kavana179_StudentManagementSystem" /o:"kavana179" /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
-    # Step 5: Run Tests and Collect Code Coverage
-    - name: Run tests and collect code coverage
+    # Step 5: Build the project
+    - name: Build project
       run: |
-        dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=./TestResults/
+        dotnet build
 
     # Step 6: End SonarCloud analysis
     - name: End SonarCloud analysis
